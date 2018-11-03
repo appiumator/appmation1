@@ -7,7 +7,7 @@ from common.Helpers.MTPHelper import MTPHelper
 
 def before_all(context):
     context.device = context.config.userdata.get("device", "mobile")
-    context.platform = context.config.userdata.get("platform", "iphone")
+    context.platform = context.config.userdata.get("platform", "android7")
     context.driver = eval(Platform.ENV.get(context.device).get(context.platform))
     if "android" in context.platform:
         context.driver.switch_to.context('CHROMIUM')

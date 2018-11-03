@@ -15,9 +15,6 @@ CAPS_ANDROID = {
 
 
 def before_all(context):
-    context.environment = context.config.userdata.get("environment", "preprod")
-    context.device = context.config.userdata.get("device", "desktop")
-    context.platform = context.config.userdata.get("platform", "chrome")
     context.driver = webdriver.Remote('http://0.0.0.0:4726/wd/hub', CAPS_ANDROID)
     context.driver.switch_to.context('CHROMIUM')
     MTPHelper.browser = context.driver

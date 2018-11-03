@@ -1,20 +1,23 @@
-from selenium import webdriver as desktop_driver
-from appium import webdriver as mobile_driver
+from appium import webdriver
 from Test.PageObject.Objects.CommonPageObject import CommonPageObject
-from Test.Platform import Platform
 from common.Helpers.MTPHelper import MTPHelper
+
+CAPS_ANDROID = {
+    'platformName': 'Android',
+    'platformVersion': '7.1.2',
+    'deviceName': 'Android',
+    'browserName': 'Chrome',
+    'clearSystemFiles': True,
+    'automationName': 'UiAutomator2',
+    "udid": "4ff3743c0904",
+}
 
 
 def before_all(context):
-    context.device = context.config.userdata.get("device", "mobile")
-    context.platform = context.config.userdata.get("platform", "iphone")
-    context.driver = eval(Platform.ENV.get(context.device).get(context.platform))
-    if "android" in context.platform:
-        context.driver.switch_to.context('CHROMIUM')
-    elif context.platform == "iphone":
-        context.driver.switch_to.context
-    else:
-        context.driver.maximize_window()
+    context.driver = webdriver.Remote('http://0.0.0.0:4726/wd/hub', CAPS_ANDROID)
+    context.driver.switch_to.context('CHROMIUM')
+    MTPHelper.browser = context.driver
+    context.common = CommonPageObject(context)
 
 
 def after_all(context):

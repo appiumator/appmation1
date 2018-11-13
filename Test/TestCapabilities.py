@@ -83,3 +83,6 @@ class TestCapabilities:
     }
 
     COMPUTERS = {"jenkins": 'jenkins.local'}
+
+    APPIUM_WD_ERROR_MSG = ["is already in use", 'ECONNREFUSED', '[Errno 61] Connection refused']
+

@@ -17,13 +17,13 @@ from common.Helpers.MTPHelper import MTPHelper
 
 def before_all(context):
     context.device = context.config.userdata.get("device", "mobile")
-    context.platform = context.config.userdata.get("platform", "android7")
+    context.platform = context.config.userdata.get("platform", "SAMSUNG")
     if platform.node() == TestCapabilities.COMPUTERS.get('jenkins') and context.device == 'mobile':
         context.appium_port = str(get_free_port())
         get_appium(context)
         system_port = get_free_port()
         TestCapabilities.CAPS.get(context.platform).update({"systemPort": system_port})
-        context.driver = eval(Platform.ENV.get(context.device).get(context.platform).get("jenkins"))
+        init_driver(context)
     else:
         context.driver = eval(Platform.ENV.get(context.device).get(context.platform).get("remote"))
     if "android" in context.platform:
@@ -33,6 +33,32 @@ def before_all(context):
     else:
         context.driver.maximize_window()
     MTPHelper.browser = context.driver
+
+def init_driver(context):
+    for trial in range(7):
+        try:
+            context.driver = eval(TestCapabilities.ENV.get(context.device).get(context.platform).
+                                  format(port=context.appium_port, caps=TestCapabilities.CAPS.get(context.platform)))
+            print('{0} STABLE>>>>>>>>>'.format(context.platform))
+            break
+        except Exception as e:
+            for error in TestCapabilities.APPIUM_WD_ERROR_MSG:
+                if error in e.msg:
+                    print('{error} occured while checing {device} I am trying again!'.format(
+                        error=error, device=context.platform))
+                    time.sleep(randint(1, 5))
+            else:
+                context.subprocess.send_signal(signal.SIGINT)
+                if 'Unknown device or simulator UDID' in e.msg:
+                    raise ValueError('{0}is taken out from platform'.format(context.platform))
+                else:
+                    raise ValueError('UNKNOWN ERROR OCCURED WHILE CHECKING {0}: '.format(context.platform) + e.msg)
+
+    else:
+        print("Unstable devices {0}".format(context.platform))
+        context.subprocess.send_signal(signal.SIGINT)
+        raise ValueError('{0} is connected but after 7 attempts {0} is not answering'.format(context.platform))
+
 
 def get_appium(context):
     appium_params = TestCapabilities.APPIUM.get(context.platform).\
